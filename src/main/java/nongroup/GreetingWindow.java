@@ -1,5 +1,6 @@
 package nongroup;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -59,7 +60,8 @@ public class GreetingWindow {
 
     public GreetingWindow() {
         System.out.println("GreetingWindows constructor () called!");
-        this.ICON = new Image(getClass().getResourceAsStream(GreetingWindow.DEFAULT_ICON_PATH));
+        InputStream iconStream = getClass().getResourceAsStream(GreetingWindow.DEFAULT_ICON_PATH);
+        if (iconStream != null) this.ICON = new Image(iconStream);
         listenersOfAnimationEnd = new ArrayList<Consumer<Stage>>();
     }
 
@@ -104,7 +106,7 @@ public class GreetingWindow {
 
     private void configureLabelShadow(Label label) {
         DropShadow ds = new DropShadow();
-        ds.setColor(Color.web(this.GREETING_SCENE_LABEL_SHADOW_HEX, 0.5));
+        ds.setColor(Color.web(GREETING_SCENE_LABEL_SHADOW_HEX, 0.5));
         ds.setOffsetX(0);
         ds.setOffsetY(0);
         ds.setRadius(20);
@@ -115,7 +117,7 @@ public class GreetingWindow {
 
     public Animation createDelay(int timeInMills) {
         Timeline delay = new Timeline();
-        KeyFrame frame = new KeyFrame(Duration.millis(timeInMills), null);
+        KeyFrame frame = new KeyFrame(Duration.millis(timeInMills), new KeyValue[] { });
         delay.getKeyFrames().add(frame);
         return delay;
     }
