@@ -2,6 +2,8 @@ package nongroup;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javafx.animation.Animation;
@@ -9,6 +11,8 @@ import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -34,14 +38,10 @@ public class GreetingWindow {
 
     public static final String GREETING_TEXT = "Greeting";
 
-    public static final int TIME_OF_WINDOW_ANIMATION_IN_MILLS = 1000;
+    public static final int TIME_OF_WINDOW_ANIMATION_IN_MILLS = 2000;
     public static final int TIME_OF_TEXT_ANIMATION_IN_MILLS = 2000;
-    public static final int DELAY_AFTER_ANIMATION = 500;
 
-    public boolean needToReverseLabelAnimation = false;
-    public boolean needToReverseWindowAnimation = false;
-
-    //public boolean closeStageAfterAnimationEnd = false;
+    private boolean closeStageAtEndOfAnimation = false;
 
     /**
      * Включает свечение текста.
@@ -55,20 +55,149 @@ public class GreetingWindow {
     private Scene scene;
     private Label greeting;
 
-    private Timeline windowAppearance;
-    private FadeTransition labelAppearance;
+    //private Timeline windowAppearance;
+    //private FadeTransition labelAppearance;
+    private LinkedList<Animation> animationsSequence;
 
     public GreetingWindow() {
-        System.out.println("GreetingWindows constructor () called!");
+        System.out.println("GreetingWindows default constructor called!");
         InputStream iconStream = getClass().getResourceAsStream(GreetingWindow.DEFAULT_ICON_PATH);
         if (iconStream != null) this.ICON = new Image(iconStream);
         listenersOfAnimationEnd = new ArrayList<Consumer<Stage>>();
+        animationsSequence = new LinkedList<Animation>();
     }
 
     public Stage createGreetingWindow() {
         this.scene = this.prepareScene();
         this.stage = this.prepareStage(scene);
         return this.stage;
+    }
+
+    public Animation createAnimation(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills, boolean closeWindowAtEnd) {
+        if (appearance == null & disappearance == null) return null;
+        if (appearance == AnimaTarget.NO_ANIMATION & disappearance == AnimaTarget.NO_ANIMATION) return null;
+
+        appearance = appearance == null ? AnimaTarget.NO_ANIMATION : appearance;
+        disappearance = disappearance == null ? AnimaTarget.NO_ANIMATION : disappearance;
+
+        this.closeStageAtEndOfAnimation = closeWindowAtEnd;
+
+        switch (appearance) {
+            case NO_ANIMATION: break;
+            case ONLY_WINDOW: 
+                hideStage();
+                animationsSequence.add(createOppacityAnimationForStage(0, 1));
+                break;
+            case ONLY_TEXT:
+                animationsSequence.add(createOppacityAnimationForNode(0, 1));
+                break;
+            case BOTH:
+                hideStage();
+                hideText();
+                animationsSequence.add(createOppacityAnimationForStage(0, 1));
+                animationsSequence.add(createOppacityAnimationForNode(0, 1));
+                break;
+            default: 
+                throw new IllegalArgumentException("Unexpected appearance variable value.");
+        }
+
+        switch (disappearance) {
+            case NO_ANIMATION: break;
+            case ONLY_WINDOW: 
+                animationsSequence.add(createOppacityAnimationForStage(1, 0));
+                break;
+            case ONLY_TEXT:
+                animationsSequence.add(createOppacityAnimationForNode(1, 0));
+                break;
+            case BOTH:
+                animationsSequence.add(createOppacityAnimationForNode(1, 0));
+                animationsSequence.add(createOppacityAnimationForStage(1, 0));
+                break;
+            default: 
+                throw new IllegalArgumentException("Unexpected appearance variable value.");
+        }
+
+        this.insertDelaysInSequence(this.animationsSequence, delaysInMills);
+        Animation startAnimation = createLinkedSequence(this.animationsSequence);
+        return startAnimation;
+    }
+
+    private void hideText() {
+        greeting.setOpacity(0);
+    }
+
+    private void hideStage() {
+        stage.setOpacity(0);
+    }
+
+    private void doEndAnimationThings() {
+        for (Consumer<Stage> listener : listenersOfAnimationEnd) {
+            listener.accept(this.stage);
+        }
+        if (this.closeStageAtEndOfAnimation & this.stage.isShowing()) {
+            this.stage.close();  
+        } 
+    }
+
+    private Timeline createOppacityAnimationForStage(int startValue, int endValue) {
+        Timeline animation = new Timeline();
+        animation.setCycleCount(1);
+        animation.setAutoReverse(false);
+        
+        KeyValue kv0 = new KeyValue(this.stage.opacityProperty(), startValue);
+        KeyValue kv = new KeyValue(this.stage.opacityProperty(), endValue);
+        KeyFrame kf0 = new KeyFrame(Duration.ZERO, kv0);
+        KeyFrame kf = new KeyFrame(Duration.millis(TIME_OF_WINDOW_ANIMATION_IN_MILLS), kv);
+        animation.getKeyFrames().add(kf0);
+        animation.getKeyFrames().add(kf);
+
+        return animation;
+    }
+
+    private FadeTransition createOppacityAnimationForNode(int startValue, int endValue) {
+        FadeTransition animation = new FadeTransition();
+        animation.setCycleCount(1);
+        animation.setAutoReverse(false);
+        animation.setDuration(Duration.millis(TIME_OF_TEXT_ANIMATION_IN_MILLS));
+        animation.setFromValue(startValue);
+        animation.setToValue(endValue);
+        animation.setNode(greeting);
+        
+        return animation;
+    }
+
+    private void insertDelaysInSequence(List<Animation> animationSequence, int[] delaysInMills) {
+        if (delaysInMills == null) return;
+
+        // Задержка до анимации + по 1 задержке после каждой анимации
+        int limitOfDelaysAmount = 1 + animationSequence.size(); 
+        limitOfDelaysAmount = limitOfDelaysAmount > delaysInMills.length ? delaysInMills.length : limitOfDelaysAmount;
+
+        int insertIdx = 0;
+        for (int idx = 0; idx < limitOfDelaysAmount; idx++) {
+            if (delaysInMills[idx] <= 0) {
+                insertIdx += 1;
+                continue;
+            }
+            Animation delay = createDelay(delaysInMills[idx]);
+            animationSequence.add(insertIdx, delay);
+            insertIdx += 2;
+        }
+    }
+
+    public List<Animation> getAnimationSequence() {
+        return this.animationsSequence;
+    }
+
+    private Animation createLinkedSequence(List<Animation> animationsSequence) {
+        for (int i = 1; i < animationsSequence.size(); i++) {
+            Animation prev =  animationsSequence.get(i - 1);
+            Animation next = animationsSequence.get(i);
+            prev.setOnFinished((event) -> next.play());
+        }
+        Animation last = animationsSequence.get(animationsSequence.size() - 1);
+        last.setOnFinished((event) -> this.doEndAnimationThings());
+        return animationsSequence.get(0);
     }
 
     private Stage prepareStage(Scene scene) {
@@ -122,6 +251,8 @@ public class GreetingWindow {
         return delay;
     }
 
+    /*
+
     public Timeline createWindowAppearanceAnimation() {
         this.windowAppearance = new Timeline();
 
@@ -141,6 +272,9 @@ public class GreetingWindow {
 
         return this.windowAppearance;
     }
+    */
+
+    /*
 
     public FadeTransition createLabelAppearanceAnimation() {
         this.labelAppearance = new FadeTransition();
@@ -151,10 +285,18 @@ public class GreetingWindow {
         this.labelAppearance.setDuration(Duration.millis(TIME_OF_TEXT_ANIMATION_IN_MILLS));
 
         this.labelAppearance.setFromValue(0);
-        this.labelAppearance.setToValue(10);
+        this.labelAppearance.setToValue(1);
         this.labelAppearance.setNode(greeting);
         
         return this.labelAppearance;
     }
+
+    */
+
+
+
+
+
+
 
 }

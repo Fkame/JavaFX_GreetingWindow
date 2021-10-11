@@ -1,4 +1,4 @@
-package nongroup;
+package nongroup.javaFXExampleTest;
 
 import org.junit.Before;
 import org.junit.Test;

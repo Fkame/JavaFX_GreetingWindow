@@ -1,4 +1,4 @@
-package nongroup;
+package nongroup.javaFXExampleTest;
 
 import static org.junit.Assert.assertTrue;
 
@@ -9,19 +9,20 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-public class TestGWSimpleShow extends Application implements IJavaFxTest {
-    
-    private Stage appStage;
-    private Stage greetingWindow;
+public class TestStageJavaFXShow extends Application implements IJavaFxTest
+{
+    private Stage stage;
     private Thread javafxThread;
 
-    public static final int MAX_TIME_TO_WAIT_IN_MILLS = 15000;
-    public static final int MAX_TIME_FOR_CLOSING_JAVAFX_WINDOW = 3000;
+    public static final int MAX_TIME_TO_WAIT_IN_MILLS = 7000;
 
     @Override
     public void start(Stage stage) {
-        this.appStage = stage;
-        doMainTestStaff();
+        this.stage = stage;
+        this.stage.setOnShowing(e -> doMainTestStaff());
+        this.stage.setOnCloseRequest(e -> terminateJavaFXThread());
+        System.out.println("Stage created");
+        this.stage.show();
     }
 
     /** {@inheritDoc} */
@@ -29,7 +30,7 @@ public class TestGWSimpleShow extends Application implements IJavaFxTest {
     @Override
     public void launchJavaFXThread() {
         System.out.println("Launch javafx in different thread");
-        javafxThread = new Thread(() -> TestGWSimpleShow.launch());
+        javafxThread = new Thread(() -> TestStageJavaFXShow.launch());
         javafxThread.start();
     }
 
@@ -38,11 +39,9 @@ public class TestGWSimpleShow extends Application implements IJavaFxTest {
     @Override
     public void enterTestPoint()
     {
-        System.out.println("Test started! Method will wait until all windows close.");  
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWSimpleShow.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println("Test started! Method will wait until window close.");   
         try {
             javafxThread.join(MAX_TIME_TO_WAIT_IN_MILLS);
-            terminateJavaFXThread();
         } catch (Exception e) { 
             e.printStackTrace();
             assertTrue(false); 
@@ -54,15 +53,13 @@ public class TestGWSimpleShow extends Application implements IJavaFxTest {
     /** {@inheritDoc} */
     @Override
     public void doMainTestStaff() {
-        System.out.println("Javafx configurated itself. Start creating greeting window");
-        
-        GreetingWindow gw = new GreetingWindow();
-        Stage stage = gw.createGreetingWindow();
-        stage.show();
+        System.out.println("Window has shown!");
+        //// To some test stuff
+        //....
     }
 
     public void terminateJavaFXThread() {
-        System.out.println("Termination javafx thread!");
+        System.out.println("Closing window! Notifying main thread!");
         Platform.exit();
     }
 }
