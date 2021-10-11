@@ -29,7 +29,7 @@ public class TestGWResponce extends Application {
 
     public void launchJavaFXThread() {
         System.out.println("Launch javafx in different thread.");
-        javafxThread = new Thread(() -> TestGWbyShowingUser.launch());
+        javafxThread = new Thread(() -> TestGWResponce.launch());
         javafxThread.start();
     }
 
@@ -54,7 +54,7 @@ public class TestGWResponce extends Application {
         testMethodForCurrentTest = (obj) -> doSignalAboutAnimationEnd();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWResponce.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -64,7 +64,7 @@ public class TestGWResponce extends Application {
         GreetingWindow gw = new GreetingWindow();
         Stage stage = gw.createGreetingWindow();
         Animation animation = gw.createAnimation(AnimaTarget.BOTH, AnimaTarget.ONLY_TEXT, null, false);
-        gw.listenersOfAnimationEnd.add((obj) -> { 
+        gw.observersList.add(() -> { 
             System.out.println("Signal catched!!"); 
             stage.close(); 
         });

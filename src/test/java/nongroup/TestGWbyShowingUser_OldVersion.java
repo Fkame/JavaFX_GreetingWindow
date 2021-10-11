@@ -11,7 +11,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-public class TestGWbyShowingUser extends Application {
+public class TestGWbyShowingUser_OldVersion extends Application {
     
     private Stage appStage;
     private Stage greetingWindow;
@@ -31,7 +31,7 @@ public class TestGWbyShowingUser extends Application {
 
     public void launchJavaFXThread() {
         System.out.println("Launch javafx in different thread.");
-        javafxThread = new Thread(() -> TestGWbyShowingUser.launch());
+        javafxThread = new Thread(() -> TestGWbyShowingUser_OldVersion.launch());
         javafxThread.start();
     }
 
@@ -57,7 +57,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doSimpleStageShow();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(false);
         System.out.println("Test Finished!");
     }
@@ -76,7 +76,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doStageAppearance();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -96,7 +96,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doTextAppearance();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -116,7 +116,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doStageAndTestAppearance();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -136,7 +136,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doStageAndTextDisappearance();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -156,7 +156,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doTextDisappearance();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -176,7 +176,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doStageAndTextAppearanceWithDelays();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -196,7 +196,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doDelayBeforeShow();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
@@ -216,7 +216,7 @@ public class TestGWbyShowingUser extends Application {
         testMethodForCurrentTest = (obj) -> doWindowClose();
         launchJavaFXThread();
 
-        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser.MAX_TIME_TO_WAIT_IN_MILLS));
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
         waitFXThreadToEnd(true);
         System.out.println("Test Finished!");
     }
