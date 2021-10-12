@@ -12,24 +12,88 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+/**
+ * Вспомогательный класс ля создания анимации для окна приветствия {@link GreetingWindow}.
+ * Умеет создавать анимации, связывать их, а также способен подписать наблюдателя на событие заверешения анимации.
+ * 
+ * Анимации, помимо деления по элементам, также разделены на {@code appearance} и {@code disappearance} - то есть 
+ * появление и исчезнование. Подобные аргументы можно увидеть у метода {@link GreetingWindowAnimation#createAnimationSequence}.
+ * 
+ * Все анимации создаются в последовательном виде - нет идущих одновременно. 
+ * В полном виде цепочка анимаций имеет вид: {@code - Stage - Text - Test - Stage - }. На место всех тире могут быть добавлены
+ * задержки (в коде - {@code delaysInMills}).
+ */
 class GreetingWindowAnimation {
 
+    /**
+     * Окно, для которого может быть создана анимация появления/исчезновения
+     */
     private Stage stage;
+
+     /**
+     * Узел (элемент) с текстом, для которого может быть создана анимация появления/исчезновения.
+     */
     private Node text;
+
+    /**
+     * Основной класс, из которого можно достать настройки анимации
+     */
     private GreetingWindow settingsContainer;
+
+    /**
+     * Наблюдатель, который будет информирован о наступлении события.
+     */
     public IAnimationWatcher observer;
 
+    /**
+     * Конструктор
+     * @param settingsContainer - ссылка на вызывающий класс, из которого можно получить настройки анимации.
+     * @param stage - окно, для которого нужно создать анимацию.
+     * @param text - узел с текстом, для которого нужно создать анимацию.
+     * @param observer - наблюдатель.
+     * @throws NullPointerException если любой входящий аргумент, кроме observer == null
+     */
     public GreetingWindowAnimation(GreetingWindow settingsContainer, Stage stage, Node text, IAnimationWatcher observer) {
+        if (settingsContainer == null | stage == null | text == null) 
+            throw new NullPointerException("Null argument (except observer) in constructor!");
         this.settingsContainer = settingsContainer;
         this.stage = stage;
         this.text = text;
         this.observer = observer;
     }
 
+    /**
+     * Конструктор
+     * @param settingsContainer - ссылка на вызывающий класс, из которого можно получить настройки анимации.
+     * @param stage - окно, для которого нужно создать анимацию.
+     * @param text - узел с текстом, для которого нужно создать анимацию.
+     * @throws NullPointerException если один из входящих аргументов == null
+     */
     public GreetingWindowAnimation(GreetingWindow settingsContainer, Stage stage, Node text) {
         this(settingsContainer, stage, text, null);
     }
 
+    /**
+     * Метод для создания цепочки анимаций.
+     * @param appearance - для каких элементов необходимо создать анимации появления.
+     * @param disappearance - для каких элементов необходимо создать анимации исчезновения.
+     * @param delaysInMills - задержки анимаций. То, к чему будем относиться каждый элемент массива 
+     * зависит от значений {@code appearance} и {@code disappearance}.
+     * 
+     * Полная цепочка анимаций имеет вид: {@code - Stage - Text - Test - Stage - }. На место всех тире могут быть добавлены
+     * задержки (в коде - {@code delaysInMills}).
+     * 
+     * {@code delaysInMills[0]} - задержка перед началом цепочки анимаций. 
+     * Каждый следующий элемент будет вставлен после каждой последующей анимации.
+     * Чтобы сделать задержку после завершения основных анимаций необходимо заполнить массив до этого места. 
+     * 
+     * Пример: appearance=BOTH, disappearance=ONLY_TEXT, delays={100, 200, 300, 400}.
+     * Задержки: 100мс до анимации, 200мс после появления окна, 300мс - после появления текста, 400мс - после исчезновения текста.
+     * Таким образом, задержка в 400мс - последняя анимация.
+     * 
+     * @return последовательность анимаций в виде списка.
+     * @throws IllegalArgumentException если передаётся неучтённое значение {@link AnimaTarget}.
+     */
     public List<Animation> createAnimationSequence(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills) {
         if (appearance == null & disappearance == null) return null;
         if (appearance == AnimaTarget.NO_ANIMATION & disappearance == AnimaTarget.NO_ANIMATION) return null;
@@ -86,11 +150,23 @@ class GreetingWindowAnimation {
         stage.setOpacity(0);
     }
 
-    public void doEndAnimationThings() {
+    /**
+     * Метод, который будет вызван, когда анимация закончится.
+     * Передаёт сигнал наблюдателю (вызывает метод по контракту).
+     */
+    private void doEndAnimationThings() {
         if (observer != null) observer.invokeAfterAnimation(); 
     }
 
+    /**
+     * Склеивает анимации из списка между собой, на выходе получается последовательность включающихся друг за другом анимаций.
+     * @param animationsSequence - последовательность анимаций в виде списка.
+     * @return самая первая анимация, к которой приклеены друг за другом остальные анимации.
+     */
     public Animation connectAnimationsEachAfterPrev(List<Animation> animationsSequence) {
+        if (animationsSequence == null) return null;
+        if (animationsSequence.size() == 0) return null;
+        
         for (int i = 1; i < animationsSequence.size(); i++) {
             Animation prev =  animationsSequence.get(i - 1);
             Animation next = animationsSequence.get(i);
@@ -101,6 +177,11 @@ class GreetingWindowAnimation {
         return animationsSequence.get(0);
     }
 
+    /**
+     * Метод создаёт задержку в виде анимации. Суть задержки в том, что это просто пустакя задержка на определённое время.
+     * @param timeInMills - время задержки в миллисекундах.
+     * @return анимация задержки.
+     */
     public static Animation createDelay(int timeInMills) {
         Timeline delay = new Timeline();
         KeyFrame frame = new KeyFrame(Duration.millis(timeInMills), new KeyValue[] { });
@@ -108,7 +189,17 @@ class GreetingWindowAnimation {
         return delay;
     }
 
+    /**
+     * Метод создаёт анимацию изменения прозрачности от {@code startValue} до {@code endValue} для элемента 
+     * {@link GreetingWindowAnimation#stage},
+     * который хранится в виде переменной класса.
+     * @param startValue - начальное значение прозрачности.
+     * @param endValue - конечное значение прозрачности.
+     * @return анимация изменения прозрачности {@code Stage}.
+     * @throws IllegalArgumentException если один из аргументов меньше 0.
+     */
     private Timeline createOppacityAnimationForStage(int startValue, int endValue) {
+        if (startValue < 0 | endValue < 0) throw new IllegalArgumentException("One of arguments < 0");
         Timeline animation = new Timeline();
         animation.setCycleCount(1);
         animation.setAutoReverse(false);
@@ -127,7 +218,17 @@ class GreetingWindowAnimation {
         return animation;
     }
 
+    /**
+     * Метод создаёт анимацию изменения прозрачности от {@code startValue} до {@code endValue} для элемента 
+     * {@link GreetingWindowAnimation#text},
+     * который хранится в виде переменной класса.
+     * @param startValue - начальное значение прозрачности.
+     * @param endValue - конечное значение прозрачности.
+     * @return анимация изменения прозрачности {@code Node}.
+     * @throws IllegalArgumentException если один из аргументов меньше 0.
+     */
     private FadeTransition createOppacityAnimationForNode(int startValue, int endValue) {
+        if (startValue < 0 | endValue < 0) throw new IllegalArgumentException("One of arguments < 0");
         FadeTransition animation = new FadeTransition();
         animation.setCycleCount(1);
         animation.setAutoReverse(false);
@@ -142,6 +243,12 @@ class GreetingWindowAnimation {
         return animation;
     }
 
+    /**
+     * Метод последовательно создаёт и вставляет задержки между анимациями основных элементов графического интерфейса.
+     * Подробнее про {@code delaysInMills} в документации к методу {@link GreetingWindowAnimation#createAnimationSequence}
+     * @param animationSequence - последовательность анимаций в виде списка.
+     * @param delaysInMills - массив задержек.
+     */
     private void insertDelaysInSequence(List<Animation> animationSequence, int[] delaysInMills) {
         if (delaysInMills == null) return;
 

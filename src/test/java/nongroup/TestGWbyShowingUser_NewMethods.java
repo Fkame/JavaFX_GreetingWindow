@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import org.junit.Test;
 
+import javafx.animation.Animation;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
@@ -96,10 +97,53 @@ public class TestGWbyShowingUser_NewMethods extends Application {
             .setTextColor(newText)
             .observersList.add(() -> System.out.println("MEssage about animation end!"));
         gw.enableShadowOnText = false;
-        Stage stage = gw.createStageWithAnimationOnShowing(AnimaTarget.BOTH, AnimaTarget.BOTH, new int[] {0, 1000}, true);   
+        Stage stage = gw.createStageWithAnimationOnShowing(AnimaTarget.BOTH, AnimaTarget.NO_ANIMATION, new int[] {0, 1000, 2000}, true);   
         stage.show();
     }
 
+    @Test 
+    public void testDefaultScenario3() {
+        System.out.println("testDefaultScenario3 started! Method will wait until all windows close.");
+        testMethodForCurrentTest = (obj) -> doDefaultScenario3();
+        launchJavaFXThread();
+
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
+        waitFXThreadToEnd(true);
+        System.out.println("Test Finished!");
+    }
+
+    public void doDefaultScenario3() {
+        System.out.println("doDefaultScenario3 calls!");
+        GreetingWindow gw = new GreetingWindow();
+        gw.setText("Greeting")
+            .setTimeOfWindowAppearanceInMills(1000);
+        gw._needToCloseStageAtEndOfAnimation = false;
+        gw.enableShadowOnText = false;
+        Stage stage = gw.createStageWithAnimationOnShowing(AnimaTarget.BOTH, AnimaTarget.NO_ANIMATION);   
+        stage.show();
+    }  
+    
+    @Test 
+    public void testCloseWindowWithoutAnimation() {
+        System.out.println("testCloseWindowWithoutAnimation started! Method will wait until all windows close.");
+        testMethodForCurrentTest = (obj) -> doCloseWindowWithoutAnimation();
+        launchJavaFXThread();
+
+        System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
+        waitFXThreadToEnd(true);
+        System.out.println("Test Finished!");
+    }
+
+    public void doCloseWindowWithoutAnimation() {
+        System.out.println("doCloseWindowWithoutAnimation calls!");
+        GreetingWindow gw = new GreetingWindow();
+        gw.enableShadowOnText = true;
+        Stage stage = gw.createGreetingWindow();
+        Animation delay = gw.createDelay(3000);
+        delay.setOnFinished((event) -> stage.close());
+        stage.setOnShowing((event) -> delay.play());
+        stage.show();
+    }  
 
     
 }

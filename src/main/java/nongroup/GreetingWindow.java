@@ -18,22 +18,74 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+/**
+ * Класс предоставляет функционал для создания и некоторой настройки простенького окна приветствия пользователя с анимацией.
+ * 
+ * Анимации, помимо деления по элементам, также разделены на {@code appearance} и {@code disappearance} - то есть 
+ * появление и исчезнование. Подобные аргументы можно увидеть у метода {@link GreetingWindow#createAnimation}.
+ * 
+ * Все анимации создаются в последовательном виде - нет идущих одновременно. 
+ * В полном виде цепочка анимаций имеет вид: {@code - Stage - Text - Test - Stage - }. На место всех тире могут быть добавлены
+ * задержки (в коде - {@code delaysInMills}).
+ * 
+ * Окно может быть автоматически закрыто с помощью флага {@link GreetingWindow#_needToCloseStageAtEndOfAnimation}, а
+ * также класс имеет список наблюдателей, которых может уведовить о завершении анимации.
+ */
 public class GreetingWindow implements IAnimationWatcher {
     
+    /**
+     * Константа с путем к иконке по умолчанию (должна лежать в том же пакете).
+     */
     public static final String DEFAULT_ICON_PATH = "appIcon.png";
+
+    /**
+     * Переменная хранит картинку для иконки.
+     */
     private Image icon;
 
+    /**
+     * Цвет фона окна.
+     */
     private Color _sceneBackgroundColor = Color.valueOf("#303030");
+
+    /**
+     * Цвет текста.
+     */
     private Color _sceneTextColor = Color.valueOf("#fafafa");
+
+    /**
+     * Цвет тени текста.
+     */
     private Color _sceneTextShadowColor = Color.web("#ffffff", 0.5);
 
+    /**
+     * Текст окна приветствия.
+     */
     private String _greetingText = "Greeting";
 
+    /**
+     * Время появления окна в миллисекундах.
+     */
     private int _timeOfWindowAppearanceInMills = 1000;
+
+    /**
+     * Время исчезновения окна в миллисекундах.
+     */
     private int _timeOfWindowDisappearanceInMills = 1000;
+
+    /**
+     * Время появления текста в миллисекундах.
+     */
     private int _timeOfTextAppearanceInMills = 2000;
+
+    /**
+     * Время исчезновения текста в миллисекундах.
+     */
     private int _timeOfTextDisappearanceInMills = 1000;
 
+    /**
+     * Нужно ли закрывать окно после завершения всех анимаций. Если анимаций нет - окно закрыто не будет.
+     */
     public boolean _needToCloseStageAtEndOfAnimation = true;
 
     /**
@@ -47,18 +99,27 @@ public class GreetingWindow implements IAnimationWatcher {
      */
     public final ArrayList<IAnimationWatcher> observersList;
 
+    /**
+     * Окно приветствия.
+     */
     private Stage stage;
+
+    /**
+     * Элемент с текстом приветствия.
+     */
     private Label greeting;
 
+    /**
+     * Конструктор по умолчанию. Загружает иконку по умолчанию.
+     */
     public GreetingWindow() {
-        System.out.println("GreetingWindows default constructor called!");
-
         InputStream iconStream = getClass().getResourceAsStream(GreetingWindow.DEFAULT_ICON_PATH);
         if (iconStream != null) this.icon = new Image(iconStream);
 
         observersList = new ArrayList<IAnimationWatcher>();
     }
 
+    /** {@inheritDoc} */
     @Override 
     public void invokeAfterAnimation() {
         for (IAnimationWatcher observer : observersList) {
@@ -67,47 +128,113 @@ public class GreetingWindow implements IAnimationWatcher {
         }
         if (this._needToCloseStageAtEndOfAnimation & stage.isShowing()) stage.close();
     }
-
+    
+    /**
+     * Метод создания окна с вшитимы на событие появления анимациями.
+     * @see GreetingWindow#createStageWithAnimationOnShowing(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills)
+     * @param appearance - для каких элементов необходимо создать анимации появления.
+     * @param disappearance - для каких элементов необходимо создать анимации исчезновения.
+     * @return готовое окно, которое осталось только вывести пользователю (через {@link Stage#show()})
+    */
     public Stage createStageWithAnimationOnShowing(AnimaTarget appearance, AnimaTarget disappearance) {
         return this.createStageWithAnimationOnShowing(appearance, disappearance, null);
     }
 
+    /**
+     * Метод создания окна с вшитимы на событие появления анимациями.
+     * 
+     * @param appearance - для каких элементов необходимо создать анимации появления.
+     * @param disappearance - для каких элементов необходимо создать анимации исчезновения.
+     * @param delaysInMills - задержки анимаций. То, к чему будем относиться каждый элемент массива 
+     * зависит от значений {@code appearance} и {@code disappearance}.
+     * 
+     * Полная цепочка анимаций имеет вид: {@code - Stage - Text - Test - Stage - }. На место всех тире могут быть добавлены
+     * задержки (в коде - {@code delaysInMills}).
+     * 
+     * {@code delaysInMills[0]} - задержка перед началом цепочки анимаций. 
+     * Каждый следующий элемент будет вставлен после каждой последующей анимации.
+     * Чтобы сделать задержку после завершения основных анимаций необходимо заполнить массив до этого места. 
+     * 
+     * Пример: appearance=BOTH, disappearance=ONLY_TEXT, delays={100, 200, 300, 400}.
+     * Задержки: 100мс до анимации, 200мс после появления окна, 300мс - после появления текста, 400мс - после исчезновения текста.
+     * Таким образом, задержка в 400мс - последняя анимация.
+     * @return готовое окно, которое осталось только вывести пользователю (через {@link Stage#show()}).
+     */
     public Stage createStageWithAnimationOnShowing(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills) {
         this.stage = this.createGreetingWindow();
         Animation firstAnimation = this.createAnimation(appearance, disappearance, delaysInMills);
-        this.stage.setOnShowing((event) -> firstAnimation.play());
+        if (firstAnimation != null)
+            this.stage.setOnShowing((event) -> firstAnimation.play());
         return stage;
     }
 
+    /**
+     * Метод создания окна с вшитимы на событие появления анимациями и автоматическим закрытием окна после анимаций.
+     * @see GreetingWindow#createStageWithAnimationOnShowing(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills)
+     * @param appearance - для каких элементов необходимо создать анимации появления.
+     * @param disappearance - для каких элементов необходимо создать анимации исчезновения.
+     * @param delaysInMills - задержки анимаций.
+     * @param needToCloseStage - нужно ли автоматически закрыть окно после завершения всех анимаций.
+     * @return готовое окно, которое осталось только вывести пользователю (через {@link Stage#show()}).
+     */
     public Stage createStageWithAnimationOnShowing(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills, boolean needToCloseStage) {
         this._needToCloseStageAtEndOfAnimation = needToCloseStage;
         return createStageWithAnimationOnShowing(appearance, disappearance, delaysInMills);
     }
 
+    /**
+     * Метод создаёт окно без анимаций.
+     * @return окно приветствия.
+     */
     public Stage createGreetingWindow() {
         Scene scene = this.prepareScene();
         this.stage = this.prepareStage(scene);
         return this.stage;
     }
 
+    /**
+     * Метод создаёт цепочку из анимаций для окна и возвращает первую анимацию, так как она запустит все другие.
+     * @param appearance - для каких элементов необходимо создать анимации появления.
+     * @param disappearance - для каких элементов необходимо создать анимации исчезновения.
+     * @return первая анимация, которая запустит другие.
+     */
     public Animation createAnimation(AnimaTarget appearance, AnimaTarget disappearance) {
         return this.createAnimation(appearance, disappearance, null);
     }
 
+    /**
+     * Метод создаёт цепочку из анимаций для окна и возвращает первую анимацию, так как она запустит все другие.
+     * @param appearance - для каких элементов необходимо создать анимации появления.
+     * @param disappearance - для каких элементов необходимо создать анимации исчезновения.
+     * @param delaysInMills - задержки анимаций.
+     * @return первая анимация, которая запустит другие.
+     */
     public Animation createAnimation(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills) {
         if (stage == null) createGreetingWindow();
         GreetingWindowAnimation animaAssistant = new GreetingWindowAnimation(this, this.stage, this.greeting, this);
         List<Animation> animaSeq = animaAssistant.createAnimationSequence(appearance, disappearance, delaysInMills);
         Animation firstAnimation = animaAssistant.connectAnimationsEachAfterPrev(animaSeq);
         return firstAnimation;
-
     }
 
+    /**
+     * Метод создаёт цепочку из анимаций для окна и возвращает первую анимацию, так как она запустит все другие.
+     * @param appearance - для каких элементов необходимо создать анимации появления.
+     * @param disappearance - для каких элементов необходимо создать анимации исчезновения.
+     * @param delaysInMills - задержки анимаций.
+     * @param needToCloseStage - нужно ли закрыть окно после завершения всех анимаций.
+     * @return первая анимация, которая запустит другие.
+     */
     public Animation createAnimation(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills, boolean needToCloseStage) {
         this._needToCloseStageAtEndOfAnimation = needToCloseStage;
         return createAnimation(appearance, disappearance, delaysInMills);
     }
 
+    /**
+     * Метод настроивает {@code Stage}.
+     * @param scene - сцена, которая будет отображаться в окне.
+     * @return настроенный объект {@code Stage}
+     */
     private Stage prepareStage(Scene scene) {
         Stage stage = new Stage();
         stage.initStyle(StageStyle.UNDECORATED);
@@ -124,12 +251,20 @@ public class GreetingWindow implements IAnimationWatcher {
         return stage;
     }
 
+    /**
+     * Метод создаёт сцену и настраивает её.
+     * @return настроенный объект {@code Scene}
+     */
     private Scene prepareScene() {
         Scene scene = new Scene(this.configureGreetingText());
         scene.setFill(this._sceneBackgroundColor);
         return scene;
     }
 
+    /**
+     * Метод создаёт и настраивает выводимый текст, по необходимости добавляет тень.
+     * @return настроенный объект {@code Label}
+     */
     private Label configureGreetingText() {
         this.greeting = new Label(this._greetingText);
         greeting.setFont(Font.font("Arial", FontWeight.BOLD, 50));
@@ -141,6 +276,10 @@ public class GreetingWindow implements IAnimationWatcher {
         return greeting;
     }
 
+    /**
+     * Метод создаёт и настраивает тень для текста.
+     * @param label - объект UI, содержащий текст.
+     */
     private void configureLabelShadow(Label label) {
         DropShadow ds = new DropShadow();
         ds.setColor(this._sceneTextShadowColor);
@@ -152,6 +291,11 @@ public class GreetingWindow implements IAnimationWatcher {
         label.setEffect(ds);
     }
 
+    /**
+     * Метод создаёт задержку в виде анимации. Суть задержки в том, что это просто пустакя задержка на определённое время.
+     * @param timeInMills - время задержки в миллисекундах.
+     * @return анимация задержки.
+     */
     public Animation createDelay(int timeInMills) {
         return GreetingWindowAnimation.createDelay(timeInMills);
     }
