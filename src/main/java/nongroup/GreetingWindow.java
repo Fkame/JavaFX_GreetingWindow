@@ -40,7 +40,7 @@ public class GreetingWindow implements IAnimationWatcher {
      * Включает свечение текста.
      * Внимание! Лучше не использовать вместе с анимацией появления/исчезновения текста - анимация будет подвисать!
      */
-    public boolean _enableShadowOnText = false;
+    public boolean enableShadowOnText = false;
 
     /**
      * Спискок подписанных наблюдателей, которые будут вызваны, когда анимация закончится.
@@ -77,6 +77,11 @@ public class GreetingWindow implements IAnimationWatcher {
         Animation firstAnimation = this.createAnimation(appearance, disappearance, delaysInMills);
         this.stage.setOnShowing((event) -> firstAnimation.play());
         return stage;
+    }
+
+    public Stage createStageWithAnimationOnShowing(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills, boolean needToCloseStage) {
+        this._needToCloseStageAtEndOfAnimation = needToCloseStage;
+        return createStageWithAnimationOnShowing(appearance, disappearance, delaysInMills);
     }
 
     public Stage createGreetingWindow() {
@@ -131,7 +136,7 @@ public class GreetingWindow implements IAnimationWatcher {
         greeting.setTextFill(this._sceneTextColor);
         greeting.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
         greeting.setAlignment(Pos.CENTER);
-        if (this._enableShadowOnText) this.configureLabelShadow(greeting);
+        if (this.enableShadowOnText) this.configureLabelShadow(greeting);
 
         return greeting;
     }
@@ -167,6 +172,12 @@ public class GreetingWindow implements IAnimationWatcher {
         return this;
     }
 
+    public GreetingWindow setSceneBackground(Color backColor) {
+        if (backColor == null) throw new IllegalArgumentException("backColor == null");
+        this._sceneBackgroundColor = backColor;
+        return this;
+    }
+
     public Color getSceneBackground() { 
         return this._sceneBackgroundColor; 
     }
@@ -174,6 +185,12 @@ public class GreetingWindow implements IAnimationWatcher {
     public GreetingWindow setTextColor(String textColor) {
         if (textColor == null) throw new IllegalArgumentException("textColor == null");
         this._sceneTextColor = Color.web(textColor);
+        return this;
+    }
+
+    public GreetingWindow setTextColor(Color textColor) {
+        if (textColor == null) throw new IllegalArgumentException("textColor == null");
+        this._sceneTextColor = textColor;
         return this;
     }
 

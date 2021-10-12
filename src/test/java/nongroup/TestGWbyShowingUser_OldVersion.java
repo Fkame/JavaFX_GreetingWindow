@@ -18,7 +18,6 @@ public class TestGWbyShowingUser_OldVersion extends Application {
     private Thread javafxThread;
 
     public static final int MAX_TIME_TO_WAIT_IN_MILLS = 15000;
-    public static final int MAX_TIME_FOR_CLOSING_JAVAFX_WINDOW = 3000;
 
     private static Consumer<Object> testMethodForCurrentTest;
 
@@ -197,7 +196,7 @@ public class TestGWbyShowingUser_OldVersion extends Application {
         launchJavaFXThread();
 
         System.out.println(String.format("Set %d millisecond timeout.", TestGWbyShowingUser_OldVersion.MAX_TIME_TO_WAIT_IN_MILLS));
-        waitFXThreadToEnd(true);
+        waitFXThreadToEnd(false);
         System.out.println("Test Finished!");
     }
 
