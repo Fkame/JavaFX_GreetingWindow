@@ -1,4 +1,4 @@
-package nongroup;
+package greetingwindow;
 
 import java.util.LinkedList;
 import java.util.List;

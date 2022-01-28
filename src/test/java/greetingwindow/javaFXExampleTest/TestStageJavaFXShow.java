@@ -1,4 +1,4 @@
-package nongroup.javaFXExampleTest;
+package greetingwindow.javaFXExampleTest;
 
 import static org.junit.Assert.assertTrue;
 

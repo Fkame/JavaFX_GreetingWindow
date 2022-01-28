@@ -4,9 +4,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>nongroup</groupId>
+  <groupId>greetingwindow</groupId>
   <artifactId>greetingwindow</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>greetingwindow</name>
   <!-- FIXME change it to the project's website -->
@@ -16,6 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.release>11</maven.compiler.release>
   </properties>
 
   <dependencies>
@@ -30,38 +32,17 @@
         <artifactId>javafx-controls</artifactId>
         <version>17</version>
     </dependency>
-    <dependency>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-fxml</artifactId>
-        <version>17</version>
-    </dependency>
-
   </dependencies>
 
   <build>
-    <plugins>
+    <plugins> 
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-          <configuration>
-              <release>11</release>
-          </configuration>
-      </plugin>
-      <plugin>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-maven-plugin</artifactId>
-          <version>0.0.6</version>
-          <executions>
-              <execution>
-                  <!-- Default configuration for running -->
-                  <!-- Usage: mvn clean javafx:run -->
-                  <id>default-cli</id>
-                  <configuration>
-                      <mainClass>com.nonecompany.app.App</mainClass>
-                  </configuration>
-              </execution>
-          </executions>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>module-info</mainClass>
+        </configuration>
       </plugin>
     </plugins>
   </build>

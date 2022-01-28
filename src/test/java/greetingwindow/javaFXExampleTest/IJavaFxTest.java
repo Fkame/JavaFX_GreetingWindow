@@ -1,4 +1,4 @@
-package nongroup.javaFXExampleTest;
+package greetingwindow.javaFXExampleTest;
 
 import org.junit.Before;
 import org.junit.Test;

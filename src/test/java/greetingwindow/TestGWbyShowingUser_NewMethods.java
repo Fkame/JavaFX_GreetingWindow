@@ -1,4 +1,4 @@
-package nongroup;
+package greetingwindow;
 
 import static org.junit.Assert.assertTrue;
 
@@ -6,9 +6,12 @@ import java.util.function.Consumer;
 
 import org.junit.Test;
 
+import greetingwindow.AnimaTarget;
+import greetingwindow.GreetingWindow;
 import javafx.animation.Animation;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 

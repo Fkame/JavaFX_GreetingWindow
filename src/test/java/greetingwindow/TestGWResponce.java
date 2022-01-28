@@ -1,9 +1,11 @@
-package nongroup;
+package greetingwindow;
 
 import java.util.function.Consumer;
 
 import org.junit.Test;
 
+import greetingwindow.AnimaTarget;
+import greetingwindow.GreetingWindow;
 import javafx.animation.Animation;
 import javafx.application.Application;
 import javafx.application.Platform;

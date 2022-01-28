@@ -1,4 +1,4 @@
-package nongroup;
+package greetingwindow;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -113,6 +113,7 @@ public class GreetingWindow implements IAnimationWatcher {
      * Конструктор по умолчанию. Загружает иконку по умолчанию.
      */
     public GreetingWindow() {
+        System.setProperty("prism.lcdtext", "false");
         InputStream iconStream = getClass().getResourceAsStream(GreetingWindow.DEFAULT_ICON_PATH);
         if (iconStream != null) this.icon = new Image(iconStream);
 
@@ -128,7 +129,7 @@ public class GreetingWindow implements IAnimationWatcher {
         }
         if (this._needToCloseStageAtEndOfAnimation & stage.isShowing()) stage.close();
     }
-    
+
     /**
      * Метод создания окна с вшитимы на событие появления анимациями.
      * @see GreetingWindow#createStageWithAnimationOnShowing(AnimaTarget appearance, AnimaTarget disappearance, int[] delaysInMills)
