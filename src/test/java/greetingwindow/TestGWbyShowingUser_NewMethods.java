@@ -36,7 +36,7 @@ public class TestGWbyShowingUser_NewMethods extends Application {
 
     public void launchJavaFXThread() {
         System.out.println("Launch javafx in different thread.");
-        javafxThread = new Thread(() -> TestGWbyShowingUser_OldVersion.launch());
+        javafxThread = new Thread(() -> TestGWbyShowingUser_NewMethods.launch());
         javafxThread.start();
     }
 
@@ -72,7 +72,8 @@ public class TestGWbyShowingUser_NewMethods extends Application {
         GreetingWindow gw = new GreetingWindow();
         gw.enableShadowOnText = false;
         gw.setText("Опять ты...").setTimeOfWindowAppearanceInMills(2000)
-            .setTimeOfWindowDisappearanceInMills(1000).observersList.add(() -> System.out.println("MEssage about animation end!"));
+            .setTimeOfWindowDisappearanceInMills(1000)
+            .observersList.add(() -> System.out.println("MEssage about animation end!"));
         Stage stage = gw.createStageWithAnimationOnShowing(AnimaTarget.ONLY_WINDOW, AnimaTarget.ONLY_WINDOW, new int[] {0, 1000}, true);   
         stage.show();
     }
