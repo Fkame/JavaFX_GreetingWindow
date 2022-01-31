@@ -21,14 +21,15 @@ import javafx.stage.StageStyle;
 /**
  * Класс предоставляет функционал для создания и некоторой настройки простенького окна приветствия пользователя с анимацией.
  * 
- * Анимации, помимо деления по элементам, также разделены на {@code appearance} и {@code disappearance} - то есть 
- * появление и исчезнование. Подобные аргументы можно увидеть у метода {@link GreetingWindow#createAnimation}.
+ * <p>Всего доступны 4 анимации, следующие в строгом порядке: появление окна, появление текста, исчезновение текста,
+ * исчезновение окна. Какие-либо могут быть пропущены - в таком случае элемент будет видим изначально.
+ * Эффект анимации только 1 - изменение прозрачности элемента.
  * 
- * Все анимации создаются в последовательном виде - нет идущих одновременно. 
- * В полном виде цепочка анимаций имеет вид: {@code - Stage - Text - Test - Stage - }. На место всех тире могут быть добавлены
- * задержки (в коде - {@code delaysInMills}).
+ * <p>Все анимации создаются в последовательном виде - нет идущих одновременно.
+ * В полном виде цепочка анимаций имеет вид: {@code - Stage_int - Text_in - Text_out - Stage_out - }. 
+ * На место всех тире могут быть добавлены задержки (в коде - {@code delaysInMills}).
  * 
- * Окно может быть автоматически закрыто с помощью флага {@link GreetingWindow#_needToCloseStageAtEndOfAnimation}, а
+ * <p>Окно может быть автоматически закрыто с помощью флага {@link GreetingWindow#_needToCloseStageAtEndOfAnimation}, а
  * также класс имеет список наблюдателей, которых может уведовить о завершении анимации.
  */
 public class GreetingWindow implements IAnimationWatcher {
@@ -95,7 +96,10 @@ public class GreetingWindow implements IAnimationWatcher {
     public boolean enableShadowOnText = false;
 
     /**
-     * Спискок подписанных наблюдателей, которые будут вызваны, когда анимация закончится.
+     * Спискок подписанных наблюдателей, которые будут вызваны, когда анимация закончится. 
+     * <p>Можно добавить наблюдателя после создания готового окна приветствия, потому что глубоко внутри к окончанию
+     * последней анимации привязывается ссылка на объект {@link GreetingWindow}, а он уже оповещает всех наблюдателей.
+     * <p>
      */
     public final ArrayList<IAnimationWatcher> observersList;
 
@@ -109,10 +113,21 @@ public class GreetingWindow implements IAnimationWatcher {
      */
     private Label greeting;
 
+    private String titleName = "Greeting Window";
+
     /**
      * Конструктор по умолчанию. Загружает иконку по умолчанию.
      */
     public GreetingWindow() {
+        System.setProperty("prism.lcdtext", "false");
+        InputStream iconStream = getClass().getResourceAsStream(GreetingWindow.DEFAULT_ICON_PATH);
+        if (iconStream != null) this.icon = new Image(iconStream);
+
+        observersList = new ArrayList<IAnimationWatcher>();
+    }
+
+    public GreetingWindow(String titleName) {
+        this.titleName = titleName;
         System.setProperty("prism.lcdtext", "false");
         InputStream iconStream = getClass().getResourceAsStream(GreetingWindow.DEFAULT_ICON_PATH);
         if (iconStream != null) this.icon = new Image(iconStream);
@@ -149,7 +164,7 @@ public class GreetingWindow implements IAnimationWatcher {
      * @param delaysInMills - задержки анимаций. То, к чему будем относиться каждый элемент массива 
      * зависит от значений {@code appearance} и {@code disappearance}.
      * 
-     * Полная цепочка анимаций имеет вид: {@code - Stage - Text - Test - Stage - }. На место всех тире могут быть добавлены
+     * Полная цепочка анимаций имеет вид: {@code - Stage - Text - Text - Stage - }. На место всех тире могут быть добавлены
      * задержки (в коде - {@code delaysInMills}).
      * 
      * {@code delaysInMills[0]} - задержка перед началом цепочки анимаций. 
@@ -247,6 +262,7 @@ public class GreetingWindow implements IAnimationWatcher {
         stage.centerOnScreen();
 
         if (this.icon != null) stage.getIcons().add(this.icon);
+        stage.setTitle(this.titleName);
 
         stage.setScene(scene);
         return stage;

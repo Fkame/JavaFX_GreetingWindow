@@ -50,7 +50,7 @@ class GreetingWindowAnimation {
      * @param settingsContainer - ссылка на вызывающий класс, из которого можно получить настройки анимации.
      * @param stage - окно, для которого нужно создать анимацию.
      * @param text - узел с текстом, для которого нужно создать анимацию.
-     * @param observer - наблюдатель.
+     * @param observer - наблюдатель. В данном случае это класс {@link GreetingWindow}.
      * @throws NullPointerException если любой входящий аргумент, кроме observer == null
      */
     public GreetingWindowAnimation(GreetingWindow settingsContainer, Stage stage, Node text, IAnimationWatcher observer) {
@@ -80,14 +80,15 @@ class GreetingWindowAnimation {
      * @param delaysInMills - задержки анимаций. То, к чему будем относиться каждый элемент массива 
      * зависит от значений {@code appearance} и {@code disappearance}.
      * 
-     * Полная цепочка анимаций имеет вид: {@code - Stage - Text - Test - Stage - }. На место всех тире могут быть добавлены
-     * задержки (в коде - {@code delaysInMills}).
+     * <p>Все анимации создаются в последовательном виде - нет идущих одновременно.
+     * В полном виде цепочка анимаций имеет вид: {@code - Stage_int - Text_in - Text_out - Stage_out - }. 
+     * На место всех тире могут быть добавлены задержки (в коде - {@code delaysInMills}).
      * 
-     * {@code delaysInMills[0]} - задержка перед началом цепочки анимаций. 
+     * <p>{@code delaysInMills[0]} - задержка перед началом цепочки анимаций. 
      * Каждый следующий элемент будет вставлен после каждой последующей анимации.
      * Чтобы сделать задержку после завершения основных анимаций необходимо заполнить массив до этого места. 
      * 
-     * Пример: appearance=BOTH, disappearance=ONLY_TEXT, delays={100, 200, 300, 400}.
+     * <p>Пример: appearance=BOTH, disappearance=ONLY_TEXT, delays={100, 200, 300, 400}.
      * Задержки: 100мс до анимации, 200мс после появления окна, 300мс - после появления текста, 400мс - после исчезновения текста.
      * Таким образом, задержка в 400мс - последняя анимация.
      * 
