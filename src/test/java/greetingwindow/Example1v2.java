@@ -26,8 +26,7 @@ public class Example1v2 extends Application {
 
     public static void runGreetingWindow() {
         GreetingWindow gw = new GreetingWindow("Greeting");
-        gw.setTimeOfWindowAppearanceInMills(2000);
-        gw.setTimeOfTextAppearanceInMills(1000);
+        gw.setTimeOfTextAppearanceInMills(2500);
         // Отображаемое имя на Stage.
         gw.setText("Hello there!");
 

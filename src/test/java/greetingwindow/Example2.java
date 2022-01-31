@@ -33,7 +33,7 @@ public class Example2 extends Application {
         // При 2х начальных анимациях из 4х, получается, что нужно сделать задержку после появления текста (то есть в (3)).
         Stage gwStage = gw.createStageWithAnimationOnShowing(AnimaTarget.BOTH, AnimaTarget.NO_ANIMATION, new int[] {0, 0, 3000});
 
-        // Укажем, какой метод, который необходимо вызвать после завершения анимаций.
+        // Укажем метод, который необходимо вызвать после завершения анимаций.
         // В данном случае в коллекцию прослушивателей нужно добавить реализацию интерфейса IAnimationWatcher в виде лямда-выражения.
         gw.observersList.add(() -> Example2.callableFunction(gwStage));
 
@@ -51,5 +51,5 @@ public class Example2 extends Application {
     public static void callableFunction(Stage stage) {
         System.out.println("Animation end!");
         stage.close();
-    };
+    }
 }
